@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔺 Mô phỏng Tam giác</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:600,400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(120deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 0;
+    }
+    .container {
+      max-width: 550px;
+      margin: 40px auto 0 auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.17);
+      padding: 36px 36px 28px 36px;
+      animation: fadeIn 0.9s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px);}
+      to   { opacity: 1; transform: translateY(0);}
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.1rem;
+      margin-bottom: 16px;
+      color: #304674;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+    .section {
+      background: #f4f8fb;
+      border-radius: 12px;
+      padding: 16px 18px 12px 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px 0 rgba(52, 85, 174, 0.04);
+    }
+    label {
+      font-weight: 600;
+      color: #304674;
+      display: block;
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+    }
+    select, input[type="number"] {
+      border: 1.5px solid #b2b8c6;
+      border-radius: 7px;
+      padding: 5px 9px;
+      margin: 4px 4px 8px 0;
+      font-size: 1rem;
+      outline: none;
+      transition: border .2s;
+      background: #f9fafc;
+    }
+    select:focus, input[type="number"]:focus {
+      border-color: #6f9ce8;
+      background: #fff;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    button {
+      background: linear-gradient(90deg, #5e8eff 0%, #6fd6ff 100%);
+      color: #fff;
+      font-family: inherit;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 1.09rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      box-shadow: 0 2px 12px 0 rgba(94,142,255,0.09);
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.18s, box-shadow 0.19s;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #6fd6ff 0%, #5e8eff 100%);
+      box-shadow: 0 4px 16px 0 rgba(94,142,255,0.13);
+      transform: translateY(-2px) scale(1.03);
+    }
+    #inputs input[type="number"] {
+      width: 70px;
+      margin-bottom: 4px;
+    }
+    #inputs {
+      margin-bottom: 10px;
+    }
+    .result {
+      border-top: 2px solid #eee;
+      margin-top: 18px;
+      padding-top: 12px;
+      font-size: 1.08rem;
+      background: #f8fafc;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 1px 3px 0 rgba(52, 85, 174, 0.06);
+      color: #2a3656;
+      min-height: 100px;
+    }
+    .result b {
+      color: #2469a7;
+      letter-spacing: 0.4px;
+    }
+    .result .section-title {
+      color: #2176ae;
+      margin-bottom: 6px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .result span[style*="color:red"] {
+      font-weight: 600;
+      padding: 8px 10px;
+      background: #ffeaea;
+      border-radius: 6px;
+      display: inline-block;
+      color: #e74c3c!important;
+    }
+    .icon {
+      font-size: 1.09em;
+      margin-right: 4px;
+      opacity: 0.76;
+    }
+    @media (max-width: 600px) {
+      .container {
+        max-width: 99vw;
+        padding: 15px 4vw 9vw 4vw;
+      }
+      .section { padding: 9vw 3vw 7vw 3vw; }
+      .result { font-size: 0.98rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔺 Giải tam giác</h1>
+    <div class="section">
+      <label>Chọn kiểu tam giác:
+        <select id="type">
+          <option value="sss">SSS (3 cạnh)</option>
+          <option value="sas">SAS (2 cạnh, 1 góc xen giữa)</option>
+          <option value="asa">ASA (2 góc, 1 cạnh xen giữa)</option>
+        </select>
+      </label>
+
+      <div id="inputs"></div>
+
+      <label>Làm tròn bao nhiêu chữ số thập phân:
+        <input type="number" id="precision" value="2" min="0">
+      </label>
+
+      <button onclick="solveTriangle()">Tính toán</button>
+    </div>
+    <div id="output" class="result"></div>
+  </div>
+  <script>
+    const inputDiv = document.getElementById("inputs");
+    const typeSelect = document.getElementById("type");
+
+    typeSelect.addEventListener("change", renderInputs);
+    renderInputs();
+
+    function renderInputs() {
+      const type = typeSelect.value;
+      let html = "";
+      if (type === "sss") {
+        html = `<span class="icon">a =</span><input type='number' id='a'> 
+                <span class="icon">b =</span><input type='number' id='b'> 
+                <span class="icon">c =</span><input type='number' id='c'>`;
+      } else if (type === "sas") {
+        html = `<span class="icon">a =</span><input type='number' id='a'> 
+                <span class="icon">C (độ) =</span><input type='number' id='C'> 
+                <span class="icon">b =</span><input type='number' id='b'>`;
+      } else if (type === "asa") {
+        html = `<span class="icon">A (độ) =</span><input type='number' id='A'> 
+                <span class="icon">C (độ) =</span><input type='number' id='C'> 
+                <span class="icon">b =</span><input type='number' id='b'>`;
+      }
+      inputDiv.innerHTML = html;
+    }
+
+    function solveTriangle() {
+      const type = typeSelect.value;
+      const p = parseInt(document.getElementById("precision").value) || 2;
+      const toRad = deg => deg * Math.PI / 180;
+      const toDeg = rad => rad * 180 / Math.PI;
+      const r = x => Number(x).toFixed(p);
+      let a, b, c, A, B, C, area, peri;
+
+      try {
+        if (type === "sss") {
+          a = parseFloat(document.getElementById("a").value);
+          b = parseFloat(document.getElementById("b").value);
+          c = parseFloat(document.getElementById("c").value);
+          if (a + b <= c || a + c <= b || b + c <= a) throw "❌ Ba cạnh không tạo thành tam giác.";
+          const s = (a + b + c) / 2;
+          area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+          A = toDeg(Math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c)));
+          B = toDeg(Math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c)));
+          C = 180 - A - B;
+        } else if (type === "sas") {
+          a = parseFloat(document.getElementById("a").value);
+          b = parseFloat(document.getElementById("b").value);
+          C = parseFloat(document.getElementById("C").value);
+          if (C <= 0 || C >= 180) throw "❌ Góc C không hợp lệ.";
+          const cRad = toRad(C);
+          c = Math.sqrt(a ** 2 + b ** 2 - 2 * a * b * Math.cos(cRad));
+          if (c <= 0) throw "❌ Dữ liệu không hợp lệ.";
+          A = toDeg(Math.asin(a * Math.sin(cRad) / c));
+          B = 180 - A - C;
+          area = 0.5 * a * b * Math.sin(cRad);
+        } else if (type === "asa") {
+          A = parseFloat(document.getElementById("A").value);
+          C = parseFloat(document.getElementById("C").value);
+          b = parseFloat(document.getElementById("b").value);
+          B = 180 - A - C;
+          if (B <= 0) throw "❌ Tổng hai góc >= 180°.";
+          const Ar = toRad(A), Br = toRad(B), Cr = toRad(C);
+          a = b * Math.sin(Ar) / Math.sin(Br);
+          c = b * Math.sin(Cr) / Math.sin(Br);
+          area = 0.5 * a * c * Math.sin(Br);
+        }
+
+        peri = a + b + c;
+        const s = peri / 2;
+        const r_in = area / s;
+        const R_out = (a * b * c) / (4 * area);
+        const ha = 2 * area / a, hb = 2 * area / b, hc = 2 * area / c;
+        const ma = 0.5 * Math.sqrt(2 * (b**2 + c**2) - a**2);
+        const mb = 0.5 * Math.sqrt(2 * (a**2 + c**2) - b**2);
+        const mc = 0.5 * Math.sqrt(2 * (a**2 + b**2) - c**2);
+        const la = Math.sqrt(b * c * (1 - (a**2) / (b + c)**2));
+        const lb = Math.sqrt(a * c * (1 - (b**2) / (a + c)**2));
+        const lc = Math.sqrt(a * b * (1 - (c**2) / (a + b)**2));
+
+        const output = `
+        <span class="section-title">🔺 <b>KẾT QUẢ</b></span><br>
+        <span class="icon">📐</span> Góc <b>A</b> = <b>${r(A)}°</b>, <b>B</b> = <b>${r(B)}°</b>, <b>C</b> = <b>${r(C)}°</b><br>
+        <span class="icon">📏</span> Cạnh <b>a</b> = <b>${r(a)}</b>, <b>b</b> = <b>${r(b)}</b>, <b>c</b> = <b>${r(c)}</b><br>
+        <span class="icon">🔄</span> Chu vi = <b>${r(peri)}</b>, Diện tích = <b>${r(area)}</b><br><br>
+        <span class="section-title">🔵 Bán kính</span>
+        <span class="icon">◯</span> Nội tiếp <b>r</b> = <b>${r(r_in)}</b>, Ngoại tiếp <b>R</b> = <b>${r(R_out)}</b><br>
+        <span class="section-title">🔧 Đường cao</span>
+        <span class="icon">↕️</span> ha = <b>${r(ha)}</b>, hb = <b>${r(hb)}</b>, hc = <b>${r(hc)}</b><br>
+        <span class="section-title">📏 Trung tuyến</span>
+        <span class="icon">⎯⎯⎯</span> ma = <b>${r(ma)}</b>, mb = <b>${r(mb)}</b>, mc = <b>${r(mc)}</b><br>
+        <span class="section-title">✂️ Phân giác</span>
+        <span class="icon">/</span> la = <b>${r(la)}</b>, lb = <b>${r(lb)}</b>, lc = <b>${r(lc)}</b>
+        `;
+        document.getElementById("output").innerHTML = output;
+      } catch (e) {
+        document.getElementById("output").innerHTML = `<span style='color:red;'>${e}</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
